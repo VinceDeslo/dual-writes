@@ -1,0 +1,28 @@
+syntax = "proto3";
+package analytics;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+service Analytics {
+    rpc Process (AnalyticsRequest) returns (AnalyticsResponse);
+}
+
+message AnalyticsRequest {
+    string id = 1;
+    AnalyticsData data = 2;
+    google.protobuf.Timestamp timestamp = 3;
+}
+
+message AnalyticsResponse {
+    int32 status = 1;
+    string message = 2;
+}
+
+message AnalyticsData {
+    int32 file_count = 1;
+    int32 vulns_count = 2;
+    int32 fixable_count = 3;
+    google.protobuf.Timestamp scan_time = 4;
+    google.protobuf.Duration scan_duration = 5;
+}

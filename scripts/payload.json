@@ -1,0 +1,11 @@
+{
+    "id": "b448d015-9970-4414-afd0-ef4ac8bfc97d",
+    "data": {
+        "file_count": 12,
+        "vulns_count": 5,
+        "fixable_count": 2,
+        "scan_time": "2024-12-21T21:17:43+00:00",
+        "scan_duration": "5.000s"
+    },
+    "timestamp": "2024-12-21T21:17:47+00:00"
+}

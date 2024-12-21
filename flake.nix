@@ -28,9 +28,11 @@
               alejandra
               go
               rust-bin.stable.latest.default
+              protobuf_27
+              grpcurl
             ];
             shellHook = ''
-                alias k='kubectl -n localdev'
+              alias k='kubectl -n localdev'
             '';
           };
         formatter = pkgs.alejandra;

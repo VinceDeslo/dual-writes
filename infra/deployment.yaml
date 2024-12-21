@@ -20,4 +20,4 @@ spec:
         image: dualwrites:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 8080
+        - containerPort: 50051
