@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dualwrites 
+  namespace: localdev
+  labels:
+    app: dualwrites 
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dualwrites 
+  template:
+    metadata:
+      labels:
+        app: dualwrites 
+    spec:
+      containers:
+      - name: dualwrites
+        image: dualwrites:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
