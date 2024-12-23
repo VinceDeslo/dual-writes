@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+  namespace: localdev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+        - name: nats
+          image: nats:latest
+          ports:
+            - containerPort: 4222  # NATS client port
+            - containerPort: 6222  # NATS cluster port
+#          volumeMounts:
+#            - name: nats-config
+#              mountPath: /etc/nats
+#              subPath: nats.conf
+#              readOnly: true
+#      volumes:
+#        - name: nats-config
+#          configMap:
+#            name: nats-config
+#            items:
+#              - key: nats.conf
+#                path: nats.conf

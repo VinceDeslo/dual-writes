@@ -41,3 +41,13 @@ just infra-up
 just k8s-request
 just infra-down
 ```
+
+### nats pod testing
+```
+just infra-up
+nats context add localhost --description "Localhost"
+
+k get pods
+k port-forward pod/<pod-name> 4222:4222
+nats pub events.test "testing pod"
+```

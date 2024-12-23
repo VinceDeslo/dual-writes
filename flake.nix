@@ -30,6 +30,7 @@
               rust-bin.stable.latest.default
               protobuf_27
               grpcurl
+              natscli
             ];
             shellHook = ''
               alias k='kubectl -n localdev'
