@@ -2,6 +2,15 @@
 
 A small test playground to mess around with NATS event propagation on DB transactions.
 
+### Design
+
+```
+A[Client] -->|Process rpc| B(Analytics Service)
+    B --> C{Tx}
+    C -->|Store| D[DB]
+    C -->|Event| E[NATS]
+```
+
 ### Dev shell
 
 ```shell
