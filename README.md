@@ -4,7 +4,7 @@ A small test playground to mess around with NATS event propagation on DB transac
 
 ### Design
 
-```
+```mermaid
 A[Client] -->|Process rpc| B(Analytics Service)
     B --> C{Tx}
     C -->|Store| D[DB]
