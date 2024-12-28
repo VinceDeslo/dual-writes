@@ -2,6 +2,9 @@ use tracing::info;
 use tonic::{transport::Server, Request, Response, Status};
 use tonic_reflection::server::Builder as ReflectionBuilder;
 
+mod config;
+use crate::config::GrpcServerConfig;
+
 pub mod analytics {
     tonic::include_proto!("analytics");
 
@@ -40,20 +43,32 @@ impl Analytics for AnalyticsService {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
-    let addr = "127.0.0.1:50051".parse()?;
+    let config = GrpcServerConfig::from_env()?;
+    let socket_addr = config.socket_addr();
+
     let service = AnalyticsService::default();
     let server = AnalyticsServer::new(service);
+
     let reflection = ReflectionBuilder::configure()
         .register_encoded_file_descriptor_set(analytics::FILE_DESCRIPTOR_SET)
         .build_v1()?;
 
-    info!("Server listening on {}", addr);
+    info!("Server configuration: {:?}", config);
+    info!("Server listening on {}", socket_addr);
+    info!("Reflection enabled: {}", config.enable_reflection);
 
-    Server::builder()
-        .add_service(server)
-        .add_service(reflection)
-        .serve(addr)
-        .await?;
+    if config.enable_reflection {
+        Server::builder()
+            .add_service(server)
+            .add_service(reflection)
+            .serve(socket_addr)
+            .await?;
+    } else {
+        Server::builder()
+            .add_service(server)
+            .serve(socket_addr)
+            .await?;
+    }
 
     Ok(())
 }
