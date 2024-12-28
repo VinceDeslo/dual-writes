@@ -6,7 +6,7 @@ metadata:
   labels:
     app: dualwrites 
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: dualwrites 
@@ -26,6 +26,12 @@ spec:
           value: "50051"
         - name: GRPC_SERVER_ENABLE_REFLECTION
           value: "true"
+        - name: NATS_ENABLED
+          value: "true"
+        - name: NATS_SERVER_ADDRESS
+          value: "nats-service"
+        - name: NATS_SERVER_PORT
+          value: "4222"
         ports:
         - containerPort: 50051
         resources:

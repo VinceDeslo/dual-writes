@@ -1,9 +1,13 @@
+use dotenv;
 use tracing::info;
 use tonic::{transport::Server, Request, Response, Status};
 use tonic_reflection::server::Builder as ReflectionBuilder;
 
 mod config;
-use crate::config::GrpcServerConfig;
+use crate::config::{GrpcServerConfig, NatsConfig};
+
+mod nats;
+use crate::nats::NatsPublisher;
 
 pub mod analytics {
     tonic::include_proto!("analytics");
@@ -41,10 +45,17 @@ impl Analytics for AnalyticsService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
     tracing_subscriber::fmt::init();
 
-    let config = GrpcServerConfig::from_env()?;
-    let socket_addr = config.socket_addr();
+    let nats_config = NatsConfig::from_env()?;
+
+    if nats_config.enabled {
+        let _nats_publisher = NatsPublisher::new(nats_config.clone()).await?;
+    }
+
+    let grpc_config = GrpcServerConfig::from_env()?;
+    let grpc_socket_addr = grpc_config.socket_addr();
 
     let service = AnalyticsService::default();
     let server = AnalyticsServer::new(service);
@@ -53,20 +64,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .register_encoded_file_descriptor_set(analytics::FILE_DESCRIPTOR_SET)
         .build_v1()?;
 
-    info!("Server configuration: {:?}", config);
-    info!("Server listening on {}", socket_addr);
-    info!("Reflection enabled: {}", config.enable_reflection);
+    info!("Server configuration: {:?}", grpc_config);
+    info!("Server listening on {}", grpc_socket_addr);
+    info!("Reflection enabled: {}", grpc_config.enable_reflection);
 
-    if config.enable_reflection {
+    if grpc_config.enable_reflection {
         Server::builder()
             .add_service(server)
             .add_service(reflection)
-            .serve(socket_addr)
+            .serve(grpc_socket_addr)
             .await?;
     } else {
         Server::builder()
             .add_service(server)
-            .serve(socket_addr)
+            .serve(grpc_socket_addr)
             .await?;
     }
 
