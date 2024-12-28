@@ -19,5 +19,19 @@ spec:
       - name: dualwrites
         image: dualwrites:latest
         imagePullPolicy: Never
+        env:
+        - name: GRPC_SERVER_HOST
+          value: "127.0.0.1"
+        - name: GRPC_SERVER_PORT
+          value: "50051"
+        - name: GRPC_SERVER_ENABLE_REFLECTION
+          value: "true"
         ports:
         - containerPort: 50051
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

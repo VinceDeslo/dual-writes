@@ -1,6 +1,13 @@
 __default:
     just --list
 
+up:
+    just docker-build
+    just infra-up
+
+down:
+    just infra-down
+
 docker-build:
     docker build -t dualwrites:latest .
 

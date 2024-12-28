@@ -21,6 +21,8 @@ nix develop
 ### Commands
 
 ```shell
+just up # Setup local deployment
+just down # Tear down local deployment
 just docker-build # Build source and local image
 just infra-up # spin up a namespace and deployment
 just infra-down # teardown namespace and deployment
@@ -38,14 +40,14 @@ just grpc-request
 
 ### k8s testing
 ```
-just infra-up
+just up
 just k8s-request
-just infra-down
+just down
 ```
 
 ### nats pod testing
 ```
-just infra-up
+just up
 nats context add localhost --description "Localhost"
 
 k get pods
