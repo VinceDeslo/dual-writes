@@ -17,6 +17,10 @@ infra-up:
 infra-down:
     cd ./infra && ./kube-down.sh
 
+infra-restart:
+    just infra-down
+    just infra-up
+
 gen-proto-descriptor:
     protoc --proto_path=proto --descriptor_set_out=proto/analytics-descriptor.pb --include_imports proto/analytics.proto
 
@@ -28,3 +32,6 @@ grpc-request:
 
 k8s-request:
     ./scripts/k8s-request.sh
+
+nats-connect:
+    ./scripts/nats-connect.sh

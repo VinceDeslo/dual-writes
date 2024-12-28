@@ -3,16 +3,19 @@
 LOCAL_PORT=50051
 K8S_PORT=50051
 SERVICE_NAME="dualwrites-service"
+PAYLOAD_FILE="scripts/payload.json"
 
 echo "Port-forwarding $SERVICE_NAME"
 
 kubectl -n localdev port-forward "svc/$SERVICE_NAME" $LOCAL_PORT:$K8S_PORT > /dev/null 2>&1 &
-BACKGROUND_PID=$!
+PF_PID=$!
 
-echo "Port-forward PID: $BACKGROUND_PID"
-sleep 1s
+echo "Port-forward PID: $PF_PID"
+trap "kill $PF_PID 2>/dev/null || true" EXIT
+sleep 2
 
-grpcurl -plaintext -d @ localhost:50051 analytics.Analytics/Process < scripts/payload.json
+echo "Hitting grpc endpoint with $PAYLOAD_FILE"
+grpcurl -plaintext -d @ localhost:50051 analytics.Analytics/Process < $PAYLOAD_FILE
 
-kill $BACKGROUND_PID
-echo "Port-forward terminated."
+echo "Press Ctrl+C to exit..."
+wait $PF_PID
