@@ -1,6 +1,6 @@
 use dotenv;
 use tracing::info;
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::transport::Server;
 use tonic_reflection::server::Builder as ReflectionBuilder;
 
 mod config;
@@ -9,39 +9,16 @@ use crate::config::{GrpcServerConfig, NatsConfig};
 mod nats;
 use crate::nats::NatsPublisher;
 
+mod service;
+use crate::service::AnalyticsService;
+
 pub mod analytics {
     tonic::include_proto!("analytics");
 
     // only necessary for reflection
     pub const FILE_DESCRIPTOR_SET: &[u8]= include_bytes!("../proto/analytics-descriptor.pb");
 }
-
-use analytics::{AnalyticsRequest, AnalyticsResponse};
-use analytics::analytics_server::{Analytics, AnalyticsServer};
-
-#[derive(Debug, Default)]
-pub struct AnalyticsService {}
-
-#[tonic::async_trait]
-impl Analytics for AnalyticsService {
-    async fn process(
-        &self,
-        request: Request<AnalyticsRequest>,
-    ) -> Result<Response<AnalyticsResponse>, Status> {
-        info!("received a process analytics request: {:?}", request);
-
-        let payload = request.into_inner();
-        
-        info!("processing analytics");
-        
-        let response = AnalyticsResponse {
-            status: 200,
-            message: format!("Processed analytics with id: {}", payload.id),
-        };
-
-        Ok(Response::new(response))
-    }
-}
+use analytics::analytics_server::AnalyticsServer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -49,15 +26,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
     let nats_config = NatsConfig::from_env()?;
-
+    let mut nats_publisher = None;
     if nats_config.enabled {
-        let _nats_publisher = NatsPublisher::new(nats_config.clone()).await?;
+        nats_publisher = Some(
+            NatsPublisher::new(nats_config.clone()).await?
+        );
     }
 
     let grpc_config = GrpcServerConfig::from_env()?;
     let grpc_socket_addr = grpc_config.socket_addr();
 
-    let service = AnalyticsService::default();
+    let service = AnalyticsService::new(nats_publisher);
     let server = AnalyticsServer::new(service);
 
     let reflection = ReflectionBuilder::configure()
@@ -66,9 +45,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Server configuration: {:?}", grpc_config);
     info!("Server listening on {}", grpc_socket_addr);
-    info!("Reflection enabled: {}", grpc_config.enable_reflection);
 
     if grpc_config.enable_reflection {
+        info!("Reflection enabled");
         Server::builder()
             .add_service(server)
             .add_service(reflection)

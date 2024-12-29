@@ -4,6 +4,9 @@ use serde::Serialize;
 use std::error::Error;
 use crate::config::NatsConfig;
 
+pub const ANALYTICS_SUBJECT: &str = "events.analytics";
+
+#[derive(Debug)]
 pub struct NatsPublisher {
     client: Client,
 }
@@ -16,7 +19,7 @@ impl NatsPublisher {
         Ok(Self { client })
     }
 
-    pub async fn _publish<T: Serialize>(
+    pub async fn publish<T: Serialize>(
         &self,
         subject: &str,
         payload: &T,
