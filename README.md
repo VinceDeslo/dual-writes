@@ -1,6 +1,7 @@
 # Dualwrites
 
-A small test playground to mess around with NATS event propagation on DB transactions.
+A small test service to mess around with a POC for a dual writes pattern and some arbitrary storage layer.
+Was mainly looking for something to play around with a locally deployed NATS server in k8s.
 
 ### Design
 
@@ -9,8 +10,14 @@ flowchart LR
     A[Client] -->|Process rpc| B(Analytics Service)
     B --> C{Tx}
     C -->|Store| D[DB]
-    C -->|Event| E[NATS]
+    C -->|Cloud Event| E[Event Bus]
 ```
+
+Tech used:
+
+- gRPC
+- NATS
+- CloudEvents
 
 ### Dev shell
 
@@ -35,22 +42,34 @@ just nats-connect # connect to the NATS pod
 
 ### Local testing
 
-```
+```shell
 cargo run
 just grpc-request
 ```
 
 ### k8s testing
-```
+
+```shell
 just up
 just k8s-request
 just down
 ```
 
 ### NATS pod testing
-```
+
+```shell
 just up
 just nats-connect
 nats pub --context localhost events.test "testing pod"
+just down
+```
+
+### NATS event debugging
+
+```shell
+just up
+just k8s-request
+k get pods
+k logs <nats-pod-name>
 just down
 ```

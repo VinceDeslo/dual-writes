@@ -12,6 +12,8 @@ use crate::nats::NatsPublisher;
 mod service;
 use crate::service::AnalyticsService;
 
+mod store;
+
 pub mod analytics {
     tonic::include_proto!("analytics");
 

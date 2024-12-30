@@ -15,7 +15,9 @@ tracing-subscriber = "0.3.19"
 async-nats = "0.38.0"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.134"
-
+uuid = { version = "1.11.0", features = ["v4"] }
+cloudevents-sdk = "0.7.0"
+chrono = "0.4.39"
 
 [build-dependencies]
 tonic-build = "0.12.3"
