@@ -3,6 +3,8 @@
 A small test service to mess around with a POC for a dual writes pattern and some arbitrary storage layer.
 Was mainly looking for something to play around with a locally deployed NATS server in k8s.
 
+The idea is to explore a sidecar for processing analytics related to another service through a small gRPC interface.
+
 ### Design
 
 ```mermaid
